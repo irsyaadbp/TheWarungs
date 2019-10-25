@@ -1,0 +1,142 @@
+.login-form-forgot {
+  float: right;
+}
+.login-form-button {
+  width: 100%;
+}
+
+.bg-image {
+  background-image: url("/assets/login-page-2.jpg");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+#login .title-container p,
+#register .title-container p {
+  display: block;
+}
+
+.title-container {
+  width: 100%;
+}
+
+#login .title-container p.title,
+#register .title-container p.title {
+  font-weight: 800 !important;
+  font-size: 2em;
+}
+
+#login form,
+#register form {
+  width: 100%;
+}
+
+.title-h2 {
+  font-weight: 800 !important;
+  font-size: 1.2em;
+}
+
+.title-h4 {
+  font-weight: 600 !important;
+  font-size: 1em;
+}
+
+.sidenav {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  background-color: #001529;
+  overflow-x: hidden;
+  transition: 0.5s;
+}
+
+.sidenav a:hover {
+  color: #f1f1f1;
+}
+
+.sidenav .closebtn {
+  color: #f1f1f1;
+  font-size: 16px;
+  float: right;
+  margin: 25px auto;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {
+    padding-top: 15px;
+  }
+  .sidenav a {
+    font-size: 18px;
+  }
+}
+
+@media screen and (max-width: 450px) {
+  header#topHeader{
+    padding: 0 20px !important;
+  }
+}
+
+
+header#topHeader{
+  background-color: #fff;
+}
+
+#dashboard-container {
+  transition: margin-right 0.5s;
+}
+
+#dashboard-container .logo{
+  padding: 15px;
+  display: flex;
+  justify-content: center;
+}
+
+#topNavbar div {
+    display: inline;
+}
+
+.title-h2-white {
+  color: rgb(204, 204, 204);
+  font-weight: 600 !important;
+  font-size: 1.2em;
+}
+
+
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width:100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.modal-main {
+  position:fixed;
+  background: white;
+  width: 80%;
+  height: auto;
+  top:50%;
+  left:50%;
+  transform: translate(-50%,-50%);
+}
+
+.display-block {
+  display: block;
+}
+
+.display-none {
+  display: none;
+}
+
+.img-list-product {
+  object-fit: cover;
+  object-position: center; 
+  height: 100px;
+  width: 100px;
+  border-radius: 4px;
+}
