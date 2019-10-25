@@ -15,7 +15,7 @@ const Login = () => {
     const isRedirect = setTimeout(() => {
       if (localStorage.getItem("jwt") !== null) return setRedirect(true);
       else return setRedirect(false);
-    }, 2000);
+    }, 100);
 
     return () => {
       clearTimeout(isRedirect);
@@ -37,8 +37,6 @@ const Login = () => {
     axios
       .post("http://192.168.6.139:2020/user/login", input)
       .then(result => {
-        console.log(result.data, "result");
-
         if (result.data.status === 400) setResponse(result.data);
         if (result.data.status === 200) {
           setResponse({

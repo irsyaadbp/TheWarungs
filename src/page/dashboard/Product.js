@@ -11,8 +11,8 @@ import {
 import { Redirect } from "react-router-dom";
 import axios from "axios";
 import useWindowDimensions from "../../helpers/useWindowDimensions";
-import AddProductDrawer from "../../components/dashboard/AddProductDrawer";
-import EditProductDrawer from "../../components/dashboard/EditProductDrawer";
+import AddProductDrawer from "../../components/AddProductDrawer";
+import EditProductDrawer from "../../components/EditProductDrawer";
 
 const Product = props => {
   const [valueData, setValueData] = useState([]);
@@ -116,7 +116,7 @@ const Product = props => {
         fetchData({});
         getCategory();
       }
-    }, 100);
+    }, 0);
 
     return () => clearTimeout(timeOut);
   }, [isLogin]);
@@ -157,7 +157,12 @@ const Product = props => {
           });
         }
       })
-      .catch(err => {});
+      .catch(err => {
+        notification.error({
+          message: "Failed Deleted Product",
+          description: `Connection lost :(`
+        });
+      });
   };
 
   const fetchData = (params = {}) => {
@@ -176,7 +181,6 @@ const Product = props => {
             total: response.data.result.infoPage.totalAllProduct
           });
           setValueData(response.data.result.data);
-          console.log(response.data.result.data);
           setLoading(false);
         }
       });
@@ -217,6 +221,7 @@ const Product = props => {
           updateVisible={editModalVisible}
           dataEdit={dataRow}
           categoryData={categoryData}
+          onAddSuccess={fetchData}
         />
         <AddProductDrawer categoryData={categoryData} onAddSuccess={fetchData}/>
         <Table

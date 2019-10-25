@@ -6,7 +6,7 @@ import {
   Form,
   Icon,
   Select,
-  Alert,
+  notification,
   InputNumber
 } from "antd";
 import axios from "axios";
@@ -15,11 +15,7 @@ const { TextArea } = Input;
 
 const AddProductDrawer = props => {
   const [visible, setVisible] = useState(false);
-  const [response, setResponse] = useState({
-    status: "",
-    msg: "",
-    loading: false
-  });
+  const [loading, setLoading] = useState(false);
 
   const initialForm = {
     prod_name: "",
@@ -35,34 +31,41 @@ const AddProductDrawer = props => {
     setSubmitValue({ ...submitValue, [inputName]: event.target.value });
   };
 
-  const onChangeInputNumber = inputName => value => {
+  const onChangeInputNumberAndSelect = inputName => value => {
     setSubmitValue({ ...submitValue, [inputName]: value });
   };
 
   const submitProduct = event => {
     event.preventDefault();
 
-    setResponse({ ...response, loading: true });
+    setLoading(true);
     const headers = {
       "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
     };
     axios
       .post("http://192.168.6.139:2020/product", submitValue, { headers })
       .then(result => {
-        console.log(result.data, "result");
-        setResponse({
-          status: result.data.status,
-          message: result.data.result || result.data.message,
-          loading: false
-        });
-        setSubmitValue(initialForm);
+        setLoading(false);
+        if (result.data.status === 200) {
+          notification.success({
+            message: "Success Added Product",
+            description: `Success Added Product ${submitValue.prod_name}.`
+          });
+          setSubmitValue(initialForm);
+        } else {
+          notification.error({
+            message: "Failed Add Product",
+            description: result.data.message
+          });
+        }
         props.onAddSuccess();
       })
       .catch(err => {
-        setResponse({
-          status: 400,
-          message: "Connection lost :(",
-          loading: false
+        setLoading(false);
+        
+        notification.error({
+          message: "Failed Add Product",
+          description: "Connection lost :("
         });
         console.log(err);
       });
@@ -81,35 +84,13 @@ const AddProductDrawer = props => {
       </Button>
 
       <Drawer
-        height="90vh"
+        height="80vh"
         title="Add New Product"
         placement="bottom"
         closable={true}
         onClose={() => setVisible(false)}
         visible={visible}
       >
-        {response.status === 400 ? (
-          <Alert
-            message="Failed :("
-            description={response.message}
-            type="error"
-            showIcon
-            style={{ width: "100%", marginBottom: "15px" }}
-          />
-        ) : (
-          ""
-        )}
-        {response.status === 200 ? (
-          <Alert
-            message="Success :)"
-            description={response.message}
-            type="success"
-            showIcon
-            style={{ width: "100%", marginBottom: "15px" }}
-          />
-        ) : (
-          ""
-        )}
         <Form
           className="login-form"
           onSubmit={submitProduct}
@@ -143,7 +124,7 @@ const AddProductDrawer = props => {
           />
           <Select
             defaultValue={submitValue.category_id}
-            onChange={onChangeInputNumber("category_id")}
+            onChange={onChangeInputNumberAndSelect("category_id")}
             style={{ marginBottom: "15px" }}
           >
             {props.categoryData.data.map((item, index) => (
@@ -157,21 +138,21 @@ const AddProductDrawer = props => {
             min={1000}
             defaultValue={1000}
             style={{ width: "100%", marginBottom: "15px" }}
-            onChange={onChangeInputNumber("price")}
+            onChange={onChangeInputNumberAndSelect("price")}
           />
           <span className="title-h4">Quantity</span>
           <InputNumber
             min={0}
             defaultValue={0}
             style={{ width: "100%" }}
-            onChange={onChangeInputNumber("quantity")}
+            onChange={onChangeInputNumberAndSelect("quantity")}
           />
           <Button
             style={{ marginTop: "15px" }}
             type="primary"
             htmlType="submit"
             className="login-form-button"
-            loading={response.loading}
+            loading={loading}
           >
             Add Product
           </Button>

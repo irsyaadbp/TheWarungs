@@ -4,7 +4,7 @@ import { Layout, Icon, Divider } from "antd";
 import { Route, Redirect } from "react-router-dom";
 import Home from "./Home";
 import Product from "./Product";
-import Navbar from "../../components/dashboard/Navbar";
+import Navbar from "../../components/Navbar";
 import Category from "./Category";
 import Order from "./Order";
 
@@ -17,7 +17,7 @@ const Dashboard = props => {
 
   const openNav = () => {
     if (distance === "0") {
-      if (width > 840) setDistance("450px");
+      if (width > 840) setDistance("380px");
       else setDistance("100vw");
     } else setDistance("0");
   };

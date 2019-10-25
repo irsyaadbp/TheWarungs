@@ -11,7 +11,7 @@ import {
 import { Redirect } from "react-router-dom";
 import axios from "axios";
 import useWindowDimensions from "../../helpers/useWindowDimensions";
-import CategoryDrawer from "../../components/dashboard/CategoryDrawer";
+import CategoryDrawer from "../../components/CategoryDrawer";
 
 const Category = () => {
   const [valueData, setValueData] = useState([]);
@@ -69,7 +69,7 @@ const Category = () => {
       else setLogin(false);
       if (!isLogin) return <Redirect to="/" />;
       else fetchData({});
-    }, 100);
+    }, 0);
 
     return () => clearTimeout(timeOut);
   }, [isLogin]);
@@ -98,7 +98,6 @@ const Category = () => {
             total: response.data.result.infoPage.totalAllCategory
           });
           setValueData(response.data.result.data);
-          console.log(response.data.result.data);
           setLoading(false);
         }
       });
@@ -170,6 +169,7 @@ const Category = () => {
           title={`Edit Category ${visibleEdit.data.name}`}
           data={visibleEdit.data}
           type="update"
+          onProcessSuccess={fetchData}
         />
         <Table
           columns={columns}

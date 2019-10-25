@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Drawer, Button, Input, Form, Icon, Alert } from "antd";
+import { Drawer, Button, Input, Form, Icon, notification } from "antd";
 import axios from "axios";
 
 const CategoryDrawer = props => {
-  const [submitValue, setSubmitValue] = useState({ category_name: "" });
+  const [loading, setLoading] = useState(false);
+  const [submitValue, setSubmitValue] = useState({ id: "",category_name: "" });
   const [response, setResponse] = useState({
     status: "",
     msg: "",
@@ -21,25 +22,33 @@ const CategoryDrawer = props => {
   const addCategory = event => {
     event.preventDefault();
 
-    setResponse({ ...response, loading: true });
+    setLoading(true);
     const headers = {
       "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
     };
     axios
       .post("http://192.168.6.139:2020/category", submitValue, { headers })
       .then(result => {
-        setResponse({
-          status: result.data.status,
-          message: result.data.result || result.data.message,
-          loading: false
-        });
-        props.onProcessSuccess()
+        setLoading(false);
+        
+        if (result.data.status === 200) {
+          notification.success({
+            message: "Success Add Category",
+            description: `Success Edited Product ${submitValue.prod_name}.`
+          });
+          props.onProcessSuccess()
+        } else {
+          notification.error({
+            message: "Failed Add Category",
+            description: result.data.message
+          });
+        }
       })
       .catch(err => {
-        setResponse({
-          status: 400,
-          message: "Connection lost :(",
-          loading: false
+        setLoading(false);
+        notification.error({
+          message: "Failed Add Category",
+          description: "Connection lost :("
         });
         console.log(err);
       });
@@ -55,20 +64,25 @@ const CategoryDrawer = props => {
     axios
       .put(`http://192.168.6.139:2020/category/${submitValue.id}`, submitValue, { headers })
       .then(result => {
-        setResponse({
-          status: result.data.status,
-          message: result.data.result || result.data.message,
-          loading: false
-        });
-        props.onProcessSuccess()
+
+        if (result.data.status === 200) {
+          notification.success({
+            message: "Success Edited Category",
+            description: `Success Edited Category ${submitValue.category_name}.`
+          });
+          props.onProcessSuccess()
+        } else {
+          notification.error({
+            message: "Failed Edit Category",
+            description: result.data.message
+          });
+        }
       })
       .catch(err => {
-        setResponse({
-          status: 400,
-          message: "Connection lost :(",
-          loading: false
+        notification.error({
+          message: "Failed Edit Product",
+          description: "Connection lostasdasd :("
         });
-        console.log(err);
       });
   };
 
@@ -81,28 +95,6 @@ const CategoryDrawer = props => {
       onClose={props.updateVisible}
       visible={props.visible}
     >
-      {response.status === 400 ? (
-        <Alert
-          message="Failed :("
-          description={response.message}
-          type="error"
-          showIcon
-          style={{ width: "100%", marginBottom: "15px" }}
-        />
-      ) : (
-        ""
-      )}
-      {response.status === 200 ? (
-        <Alert
-          message="Success :)"
-          description={response.message}
-          type="success"
-          showIcon
-          style={{ width: "100%", marginBottom: "15px" }}
-        />
-      ) : (
-        ""
-      )}
       <Form
         className="login-form"
         onSubmit={props.type === "add" ? addCategory : editCategory}
@@ -123,7 +115,7 @@ const CategoryDrawer = props => {
           type="primary"
           htmlType="submit"
           className="login-form-button"
-          loading={response.loading}
+          loading={loading}
           size="large"
         >
           Add Category
