@@ -43,7 +43,7 @@ const AddProductDrawer = props => {
       "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
     };
     axios
-      .post("http://192.168.6.139:2020/product", submitValue, { headers })
+      .post("https://the-warungs.herokuapp.com/product", submitValue, { headers })
       .then(result => {
         setLoading(false);
         if (result.data.status === 200) {

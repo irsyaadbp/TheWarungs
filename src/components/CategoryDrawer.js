@@ -27,7 +27,7 @@ const CategoryDrawer = props => {
       "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
     };
     axios
-      .post("http://192.168.6.139:2020/category", submitValue, { headers })
+      .post("https://the-warungs.herokuapp.com/category", submitValue, { headers })
       .then(result => {
         setLoading(false);
         
@@ -62,7 +62,7 @@ const CategoryDrawer = props => {
       "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
     };
     axios
-      .put(`http://192.168.6.139:2020/category/${submitValue.id}`, submitValue, { headers })
+      .put(`https://the-warungs.herokuapp.com/category/${submitValue.id}`, submitValue, { headers })
       .then(result => {
 
         if (result.data.status === 200) {

@@ -11,6 +11,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({});
   const { width } = useWindowDimensions();
+  // const [response, setResponse] = useState({});
 
   const columns = [
     {
@@ -60,7 +61,7 @@ const Home = () => {
     setLoading(true);
 
     axios
-      .get("http://192.168.6.139:2020/order", {
+      .get("https://the-warungs.herokuapp.com/order", {
         headers: {
           "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
         },
@@ -70,8 +71,11 @@ const Home = () => {
         if (response.data.status === 200) {
           setDataOrder(response.data.result.data);
           setLoading(false);
+        }else {
+          setDataOrder([]);
+          setLoading(false);
         }
-    });
+    }).catch(err => console.log(err, "catch"));
 };
   return (
     <div>
@@ -83,8 +87,8 @@ const Home = () => {
           dataSource={dataOrder}
           loading={loading}
           pagination={pagination}
-          scroll={width > 840 ? "" : { x: "max-content" }}
           onChange={handleTableChange}
+          scroll={width > 840 ? "" : { x: "max-content" }}
           size={"small"}
         />
       </Card>

@@ -116,7 +116,7 @@ const Product = props => {
         fetchData({});
         getCategory();
       }
-    }, 0);
+    }, 100);
 
     return () => clearTimeout(timeOut);
   }, [isLogin]);
@@ -137,7 +137,7 @@ const Product = props => {
 
   const handleDelete = record => {
     axios
-      .delete(`http://192.168.6.139:2020/product/${record.id}`, {
+      .delete(`https://the-warungs.herokuapp.com/product/${record.id}`, {
         headers: {
           "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
         }
@@ -169,7 +169,7 @@ const Product = props => {
     setLoading(true);
 
     axios
-      .get("http://192.168.6.139:2020/product", {
+      .get("https://the-warungs.herokuapp.com/product", {
         headers: {
           "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
         },
@@ -188,7 +188,7 @@ const Product = props => {
 
   const getCategory = () => {
     axios
-      .get("http://192.168.6.139:2020/category", {
+      .get("https://the-warungs.herokuapp.com/category", {
         headers: {
           "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
         }
@@ -221,7 +221,6 @@ const Product = props => {
           updateVisible={editModalVisible}
           dataEdit={dataRow}
           categoryData={categoryData}
-          onAddSuccess={fetchData}
         />
         <AddProductDrawer categoryData={categoryData} onAddSuccess={fetchData}/>
         <Table

@@ -77,6 +77,11 @@
   header#topHeader {
     padding: 0 20px !important;
   }
+  .cart-container,
+  .cart-checkout,
+  .cart-total {
+    padding: 20px;
+  }
 }
 
 header#topHeader {
@@ -147,7 +152,7 @@ header#topHeader {
   border-radius: 4px;
   padding-left: 10px;
   cursor: pointer;
-  text-align: right
+  text-align: right;
 }
 
 .price-product {
@@ -192,6 +197,25 @@ header#topHeader {
   text-align: center;
 }
 
-.ant-layout.ant-layout-has-sider > .ant-layout{
+.ant-layout.ant-layout-has-sider > .ant-layout {
   overflow-x: inherit !important;
+}
+
+.cart-container {
+  height: 60%;
+  overflow-y: auto;
+  width: 100%;
+  padding: 20px 50px;
+}
+
+.cart-total,
+.cart-checkout {
+  width: 100%;
+  padding: 30px 50px;
+}
+
+.title-h3-white {
+  color: rgb(204, 204, 204);
+  font-weight: 600 !important;
+  font-size: 1.1em;
 }

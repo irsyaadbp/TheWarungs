@@ -46,7 +46,7 @@ const EditProductDrawer = props => {
     };
     axios
       .put(
-        `http://192.168.6.139:2020/product/${props.dataEdit.id}`,
+        `https://the-warungs.herokuapp.com/product/${props.dataEdit.id}`,
         submitValue,
         { headers }
       )

@@ -10,7 +10,7 @@ const Order = () => {
   const [dataProduct, setDataProduct] = useState([]);
   const [isLogin, setLogin] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  
   const [dataParams, setDataParams] = useState({
     search: "",
     sortby: "",
@@ -35,7 +35,7 @@ const Order = () => {
     setLoading(true);
 
     axios
-      .get("http://192.168.6.139:2020/product", {
+      .get("https://the-warungs.herokuapp.com/product", {
         headers: {
           "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
         },
@@ -44,7 +44,6 @@ const Order = () => {
       .then(response => {
         setLoading(false);
         if (response.data.status === 200) {
-          console.log(response.data.result);
           setDataProduct(response.data.result.data);
           setMaxProduct(response.data.result.infoPage.totalAllProduct);
         } else {

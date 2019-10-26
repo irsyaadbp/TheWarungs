@@ -35,7 +35,7 @@ const Login = () => {
     event.preventDefault();
     setLoading(true);
     axios
-      .post("http://192.168.6.139:2020/user/login", input)
+      .post("https://the-warungs.herokuapp.com/user/login", input)
       .then(result => {
         if (result.data.status === 400) setResponse(result.data);
         if (result.data.status === 200) {

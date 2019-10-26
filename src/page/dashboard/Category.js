@@ -86,7 +86,7 @@ const Category = () => {
     setLoading(true);
 
     axios
-      .get("http://192.168.6.139:2020/category", {
+      .get("https://the-warungs.herokuapp.com/category", {
         headers: {
           "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
         },
@@ -116,7 +116,7 @@ const Category = () => {
 
   const handleDelete = record => {
     axios
-      .delete(`http://192.168.6.139:2020/category/${record.id}`, {
+      .delete(`https://the-warungs.herokuapp.com/category/${record.id}`, {
         headers: {
           "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
         }

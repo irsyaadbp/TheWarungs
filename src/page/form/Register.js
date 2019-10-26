@@ -22,7 +22,7 @@ const Register = () => {
     event.preventDefault();
     setLoading(true);
     axios
-      .post("http://192.168.6.139:2020/user/register", input)
+      .post("https://the-warungs.herokuapp.com/user/register", input)
       .then(result => {
         setResponse(result.data);
         setLoading(false);
