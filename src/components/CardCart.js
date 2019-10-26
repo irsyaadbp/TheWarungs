@@ -1,6 +1,6 @@
 import React from "react";
 import { Col, Button, Icon, InputNumber, Row } from "antd";
-import NumberFormat from "react-number-format";
+// import NumberFormat from "react-number-format";
 // import { alignElement } from "dom-align";
 
 // const ButtonGroup = Button.Group;

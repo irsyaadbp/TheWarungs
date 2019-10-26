@@ -52,12 +52,13 @@ const EditProductDrawer = props => {
       )
       .then(result => {
         setLoading(false);
+        console.log(result.data.status)
         if (result.data.status === 200) {
           notification.success({
             message: "Success Edited Product",
             description: `Success Edited Product ${submitValue.prod_name}.`
           });
-          props.onAddSuccess();
+          props.onEditSuccess();
         } else {
           notification.error({
             message: "Failed Edit Product",

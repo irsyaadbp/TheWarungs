@@ -221,6 +221,7 @@ const Product = props => {
           updateVisible={editModalVisible}
           dataEdit={dataRow}
           categoryData={categoryData}
+          onEditSuccess={fetchData}
         />
         <AddProductDrawer categoryData={categoryData} onAddSuccess={fetchData}/>
         <Table
