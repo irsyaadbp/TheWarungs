@@ -59,7 +59,7 @@ const Dashboard = props => {
         </div>
         <div className="cart-total">
           <span className="title-h2-white" style={{float:'left'}}>Total:</span>
-          <span className="title-h2-white" style={{float:'right'}}>Rp 20020020</span>
+          <span className="title-h2-white" style={{float:'right'}}>Rp 2.000.020</span>
         </div>
         <div className="cart-checkout">
           <Button type="primary" style={{width:'100%', marginBottom: '10px'}}>Checkout</Button>

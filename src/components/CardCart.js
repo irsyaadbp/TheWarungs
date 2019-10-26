@@ -1,6 +1,6 @@
 import React from "react";
 import { Col, Button, Icon, InputNumber, Row } from "antd";
-// import NumberFormat from "react-number-format";
+import NumberFormat from "react-number-format";
 // import { alignElement } from "dom-align";
 
 // const ButtonGroup = Button.Group;
@@ -13,9 +13,9 @@ const CardProduct = props => {
         </Button>
       </Col>
       <Col md={{ span: 14 }} sm={{ span: 14 }} xs={{ span: 14 }}>
-        <span style={{ color: "white" }}>Rp313.131</span>
+        <span style={{ color: "white" }}>Indomie</span>
         <br />
-        <span style={{ color: "white" }}>Rp313.131</span>
+        <span style={{ color: "white" }}>Rp 313.131</span>
       </Col>
       <Col md={{ span: 6 }} sm={{ span: 6 }} xs={{ span: 6 }}>
         <InputNumber
