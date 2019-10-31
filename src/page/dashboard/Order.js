@@ -10,7 +10,7 @@ const Order = () => {
   const [dataProduct, setDataProduct] = useState([]);
   const [isLogin, setLogin] = useState(false);
   const [loading, setLoading] = useState(true);
-  
+
   const [dataParams, setDataParams] = useState({
     search: "",
     sortby: "",
@@ -35,21 +35,31 @@ const Order = () => {
     setLoading(true);
 
     axios
-      .get("https://the-warungs.herokuapp.com/product", {
+      .get(`${process.env.REACT_APP_BASE_URL}/product`, {
         headers: {
-          "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
+          Authorization: JSON.parse(localStorage.getItem("jwt")).token
         },
         params
       })
       .then(response => {
         setLoading(false);
         if (response.data.status === 200) {
-          setDataProduct(response.data.result.data);
+          setDataProduct(() =>
+            response.data.result.data.map(item => ({
+              ...item,
+              isSelected: false
+            }))
+          );
           setMaxProduct(response.data.result.infoPage.totalAllProduct);
         } else {
           setDataProduct([]);
           setMaxProduct(0);
         }
+      })
+      .catch(err => {
+        setLoading(false);
+        setDataProduct([]);
+        setMaxProduct(0);
       });
   };
 
@@ -69,6 +79,8 @@ const Order = () => {
     setDataParams({ ...dataParams, page: current });
   };
 
+  console.log(dataProduct, "dataProduct");
+
   return (
     <div id="order-container">
       <Card style={{ width: "100%" }} bordered={false}>
@@ -81,19 +93,16 @@ const Order = () => {
         />
       </Card>
       <div>
-        <div style={{ display: "inline-block", marginTop: "16px" }}>
-          <span style={{ marginRight: "8px" }}>Sort by</span>
+        <div className="filter-container">
+          <span className="title-filter">Sort by</span>
           <Select defaultValue="Choose" onChange={handleChange("sortby")}>
             <Option value="name">Name</Option>
             <Option value="category">Category</Option>
           </Select>
         </div>
         <Divider type="vertical" />
-        <div style={{ display: "inline-block", marginTop: "16px" }}>
-          <span
-            style={{ marginRight: "8px" }}
-            onChange={handleChange("orderby")}
-          >
+        <div className="filter-container">
+          <span className="title-filter" onChange={handleChange("orderby")}>
             Order by
           </span>
           <Select defaultValue="Choose" onChange={handleChange("orderby")}>
@@ -111,9 +120,20 @@ const Order = () => {
           <Spin />
         ) : (
           <div>
-            {dataProduct.map(item => (
-              <CardProduct data={item} key={item.id} />
-            ))}
+            {dataProduct.length === 0 ? (
+              <div>
+                <img
+                  className="img-notfound"
+                  src="/assets/empty.svg"
+                  alt="empty product"
+                />
+                <p style={{ textAlign: "center" }} className="title-h2">
+                  Not Found
+                </p>
+              </div>
+            ) : (
+              dataProduct.map(item => <CardProduct data={item} key={item.id} />)
+            )}
           </div>
         )}
       </Row>

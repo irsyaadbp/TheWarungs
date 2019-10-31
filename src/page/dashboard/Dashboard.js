@@ -43,7 +43,7 @@ const Dashboard = props => {
         <Header>
           <span className="title-h2-white">Detail Order</span>
           <Icon type="close" onClick={closeNav} className="closebtn" />
-          <Divider style={{ margin: 0, backgroundColor: "#5a5a5a" }} />
+          <Divider className="divider" />
         </Header>
         <div className="cart-container">
           <CardCart/>
@@ -58,12 +58,12 @@ const Dashboard = props => {
           <CardCart/>
         </div>
         <div className="cart-total">
-          <span className="title-h2-white" style={{float:'left'}}>Total:</span>
-          <span className="title-h2-white" style={{float:'right'}}>Rp 2.000.020</span>
+          <span className="title-h2-white title-total-cart" >Total:</span>
+          <span className="title-h2-white total-cart">Rp 2.000.020</span>
         </div>
         <div className="cart-checkout">
-          <Button type="primary" style={{width:'100%', marginBottom: '10px'}}>Checkout</Button>
-          <Button type="default" style={{width:'100%'}} ghost>Clear all</Button>
+          <Button type="primary" className="btn-cart-checkout">Checkout</Button>
+          <Button type="default" className="btn-cart-cancel" ghost>Clear all</Button>
         </div>
       </div>
       <Navbar />
@@ -73,13 +73,13 @@ const Dashboard = props => {
           <span className="title-h2">The Warungs</span>
 
           <span
-            style={{ fontSize: "20px", cursor: "pointer", float: "right" }}
+            className="shopping-cart"
             onClick={openNav}
           >
             <Icon type="shopping-cart" />
           </span>
         </Header>
-        <Content style={{ margin: "24px 16px 0", overflow: "initial" }}>
+        <Content className="content">
           <Route exact path="/dashboard" component={Home} />
           <Route path="/dashboard/order" component={Order} />
           <Route path="/dashboard/products" component={Product} />

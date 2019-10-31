@@ -61,9 +61,9 @@ const Home = () => {
     setLoading(true);
 
     axios
-      .get("https://the-warungs.herokuapp.com/order", {
+      .get(`${process.env.REACT_APP_BASE_URL}/order`, {
         headers: {
-          "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
+          "Authorization": JSON.parse(localStorage.getItem("jwt")).token
         },
         params
       })

@@ -13,7 +13,8 @@ const CategoryDrawer = props => {
 
   useEffect(() => {
     if(props.type === "update") setSubmitValue({id: props.data.id,category_name: props.data.name})
-  }, [props])
+    else setSubmitValue({ id: "",category_name: "" });
+  }, [props]);
 
   const handleChange = inputName => event => {
     setSubmitValue({ ...submitValue, [inputName]: event.target.value });
@@ -24,17 +25,17 @@ const CategoryDrawer = props => {
 
     setLoading(true);
     const headers = {
-      "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
+      "Authorization": JSON.parse(localStorage.getItem("jwt")).token
     };
     axios
-      .post("https://the-warungs.herokuapp.com/category", submitValue, { headers })
+      .post(`${process.env.REACT_APP_BASE_URL}/category`, submitValue, { headers })
       .then(result => {
         setLoading(false);
         
         if (result.data.status === 200) {
           notification.success({
             message: "Success Add Category",
-            description: `Success Edited Product ${submitValue.prod_name}.`
+            description: `Success Added Category ${submitValue.category_name}.`
           });
           props.onProcessSuccess()
         } else {
@@ -56,13 +57,12 @@ const CategoryDrawer = props => {
 
   const editCategory = event => {
     event.preventDefault();
-
     setResponse({ ...response, loading: true });
     const headers = {
-      "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
+      "Authorization": JSON.parse(localStorage.getItem("jwt")).token
     };
     axios
-      .put(`https://the-warungs.herokuapp.com/category/${submitValue.id}`, submitValue, { headers })
+      .put(`${process.env.REACT_APP_BASE_URL}/category/${submitValue.id}`, submitValue, { headers })
       .then(result => {
 
         if (result.data.status === 200) {
@@ -95,6 +95,7 @@ const CategoryDrawer = props => {
       onClose={props.updateVisible}
       visible={props.visible}
     >
+      
       <Form
         className="login-form"
         onSubmit={props.type === "add" ? addCategory : editCategory}
@@ -118,7 +119,7 @@ const CategoryDrawer = props => {
           loading={loading}
           size="large"
         >
-          Add Category
+          {props.type === "add"? "Add Category" : "Edit Category"}
         </Button>
       </Form>
     </Drawer>

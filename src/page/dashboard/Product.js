@@ -137,9 +137,9 @@ const Product = props => {
 
   const handleDelete = record => {
     axios
-      .delete(`https://the-warungs.herokuapp.com/product/${record.id}`, {
+      .delete(`${process.env.REACT_APP_BASE_URL}/product/${record.id}`, {
         headers: {
-          "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
+          "Authorization": JSON.parse(localStorage.getItem("jwt")).token
         }
       })
       .then(response => {
@@ -169,9 +169,9 @@ const Product = props => {
     setLoading(true);
 
     axios
-      .get("https://the-warungs.herokuapp.com/product", {
+      .get(`${process.env.REACT_APP_BASE_URL}/product`, {
         headers: {
-          "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
+          "Authorization": JSON.parse(localStorage.getItem("jwt")).token
         },
         params
       })
@@ -188,9 +188,9 @@ const Product = props => {
 
   const getCategory = () => {
     axios
-      .get("https://the-warungs.herokuapp.com/category", {
+      .get(`${process.env.REACT_APP_BASE_URL}/category`, {
         headers: {
-          "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
+          "Authorization": JSON.parse(localStorage.getItem("jwt")).token
         }
       })
       .then(response => {

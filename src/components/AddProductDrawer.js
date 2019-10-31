@@ -40,10 +40,10 @@ const AddProductDrawer = props => {
 
     setLoading(true);
     const headers = {
-      "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
+      "Authorization": JSON.parse(localStorage.getItem("jwt")).token
     };
     axios
-      .post("https://the-warungs.herokuapp.com/product", submitValue, { headers })
+      .post(`${process.env.REACT_APP_BASE_URL}/product`, submitValue, { headers })
       .then(result => {
         setLoading(false);
         if (result.data.status === 200) {

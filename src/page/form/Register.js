@@ -22,15 +22,14 @@ const Register = () => {
     event.preventDefault();
     setLoading(true);
     axios
-      .post("https://the-warungs.herokuapp.com/user/register", input)
-      .then(result => {
-        setResponse(result.data);
+      .post(`${process.env.REACT_APP_BASE_URL}/user/register`, input)
+      .then(response => {
         setLoading(false);
-        if (result.data.status === 200) clearForm();
+        if (response.data.status === 200) clearForm();
+        setResponse(response.data);
       })
       .catch(err => {
-        setResponse({ status: 400, message: "Connection lost :(" });
-        console.log(err);
+        setResponse({status: 400, message: "Connection lost :("});
         setLoading(false);
       });
   };

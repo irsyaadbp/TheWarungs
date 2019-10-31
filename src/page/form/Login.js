@@ -22,12 +22,12 @@ const Login = () => {
     };
   }, [redirect]);
 
-  if(redirect) return <Redirect to="/dashboard" />;
+  if (redirect) return <Redirect to="/dashboard" />;
 
   function authenticate(dataUser) {
     if (typeof window !== undefined) {
       localStorage.setItem("jwt", JSON.stringify(dataUser));
-      setRedirect(true);      
+      setRedirect(true);
     }
   }
 
@@ -35,7 +35,7 @@ const Login = () => {
     event.preventDefault();
     setLoading(true);
     axios
-      .post("https://the-warungs.herokuapp.com/user/login", input)
+      .post(`${process.env.REACT_APP_BASE_URL}/user/login`, input)
       .then(result => {
         if (result.data.status === 400) setResponse(result.data);
         if (result.data.status === 200) {
@@ -50,7 +50,6 @@ const Login = () => {
       })
       .catch(err => {
         setResponse({ status: 400, message: "Connection lost :(" });
-        console.log(err);
         setLoading(false);
       });
   };
@@ -58,17 +57,17 @@ const Login = () => {
   const handleChange = inputName => event => {
     setInput({ ...input, [inputName]: event.target.value });
   };
-  
+
   return (
     <div id="login">
-      <Row style={{ height: "100vh", position: "relative" }} type="flex">
+      <Row className="row" type="flex">
         <Col lg={{ span: 17 }} xs={{ span: 0 }} className="bg-image"></Col>
         <Col
           lg={{ span: 7 }}
           xs={{ span: 24 }}
-          style={{ paddingLeft: "30px", paddingRight: "30px" }}
+          className="login-container"
         >
-          <Row style={{ height: "40vh" }} type="flex" align="middle">
+          <Row style={{ height: "40%" }} type="flex" align="middle">
             <div className="title-container">
               <p className="title">The Warungs</p>
               <p className="tagline">The Best Solution For Your Restaurant</p>
@@ -97,7 +96,7 @@ const Login = () => {
               ""
             )}
           </Row>
-          <Row style={{ height: "60vh" }} type="flex">
+          <Row style={{ height: "60%" }} type="flex">
             <Form className="login-form" onSubmit={handleSubmit}>
               <p className="title-h2">Login first</p>
               <Input

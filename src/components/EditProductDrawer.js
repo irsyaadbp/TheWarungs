@@ -42,11 +42,11 @@ const EditProductDrawer = props => {
     setLoading(true);
 
     const headers = {
-      "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
+      "Authorization": JSON.parse(localStorage.getItem("jwt")).token
     };
     axios
       .put(
-        `https://the-warungs.herokuapp.com/product/${props.dataEdit.id}`,
+        `${process.env.REACT_APP_BASE_URL}/product/${props.dataEdit.id}`,
         submitValue,
         { headers }
       )
