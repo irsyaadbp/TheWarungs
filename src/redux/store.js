@@ -6,6 +6,6 @@ import Reducers from "./reducers";
 
 const logger = createLogger();
 const middleware = applyMiddleware(logger, promiseMiddleware);
-const store = createStore(Reducers);
+const store = createStore(Reducers, middleware);
 
 export default store;

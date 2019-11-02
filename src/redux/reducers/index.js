@@ -1,11 +1,15 @@
 import { combineReducers } from "redux";
 
-import category from "./category";
 import auth from "./auth";
+import recentOrder from "./recentOrder";
+import product from "./product";
+import category from "./category";
 
 const appReducer = combineReducers({
+  auth,
+  product,
   category,
-  auth
+  recentOrder
 });
 
 export default appReducer;

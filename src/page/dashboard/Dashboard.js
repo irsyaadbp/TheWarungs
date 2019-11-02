@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import useWindowDimensions from "../../helpers/useWindowDimensions";
 import { Layout, Icon, Divider, Button } from "antd";
-import { Route, Redirect } from "react-router-dom";
+import { Route, Redirect, } from "react-router-dom";
 import Home from "./Home";
 import Product from "./Product";
 import Navbar from "../../components/Navbar";
@@ -9,12 +9,17 @@ import CardCart from "../../components/CardCart";
 import Category from "./Category";
 import Order from "./Order";
 
+import { getToken } from "../../redux/actions/auth";
+import { useSelector, useDispatch } from "react-redux";
+
 const { Content, Header } = Layout;
 
 const Dashboard = props => {
   const [distance, setDistance] = useState("0");
-  const [redirect, setRedirect] = useState(false);
   const { width } = useWindowDimensions();
+
+  const {token} = useSelector(state => state.auth);
+  const dispatch = useDispatch();
 
   const openNav = () => {
     if (distance === "0") {
@@ -27,12 +32,14 @@ const Dashboard = props => {
     setDistance("0");
   };
 
-  useEffect(() => {
-    if (localStorage.getItem("jwt") !== null) setRedirect(false);
-    else setRedirect(true);
+  useEffect( () => {
+    const timeout = setTimeout(async () => {
+      await dispatch(getToken())
+    }, 0)
+    return () => clearTimeout(timeout);
   }, []);
 
-  if (redirect) return <Redirect to="/" />;
+  // if (redirect) return <Redirect to="/" />;
 
   return (
     <Layout
@@ -80,10 +87,10 @@ const Dashboard = props => {
           </span>
         </Header>
         <Content className="content">
-          <Route exact path="/dashboard" component={Home} />
-          <Route path="/dashboard/order" component={Order} />
-          <Route path="/dashboard/products" component={Product} />
-          <Route path="/dashboard/categories" component={Category} />
+          <Route exact path="/dashboard">{!token ? (<Redirect to="/"/>) : (<Home token={token}/>)}</Route>
+          <Route path="/dashboard/order">{!token ? (<Redirect to="/"/>) : (<Order token={token}/>)}</Route>
+          <Route path="/dashboard/products">{!token ? (<Redirect to="/"/>) : (<Product token={token}/>)}</Route>
+          <Route path="/dashboard/categories">{!token ? (<Redirect to="/"/>) : (<Category token={token}/>)}</Route>
         </Content>
       </Layout>
     </Layout>

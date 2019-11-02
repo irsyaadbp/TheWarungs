@@ -8,22 +8,23 @@ import {
   Popconfirm,
   notification
 } from "antd";
-import { Redirect } from "react-router-dom";
-import axios from "axios";
 import useWindowDimensions from "../../helpers/useWindowDimensions";
 import CategoryDrawer from "../../components/CategoryDrawer";
 
-const Category = () => {
-  const [valueData, setValueData] = useState([]);
-  const [loading, setLoading] = useState(false);
+import { getCategory, deleteCategory } from "../../redux/actions/category";
+import { useSelector, useDispatch } from "react-redux";
+
+const Category = props => {
   const { width } = useWindowDimensions();
   const [pagination, setPagination] = useState({});
-  const [isLogin, setLogin] = useState(false);
   const [visibleAdd, setVisibleAdd] = useState(false);
   const [visibleEdit, setVisibleEdit] = useState({
     visible: false,
     data: {}
   });
+
+  const { categoryList, isLoading } = useSelector(state => state.category);
+  const dispatch = useDispatch();
 
   const columns = [
     {
@@ -37,7 +38,7 @@ const Category = () => {
       key: "action",
 
       render: (id, record) =>
-        valueData.length >= 1 && record.id !== 1 ? (
+        categoryList.length >= 1 && record.id !== 1 ? (
           <span>
             <Button
               onClick={event => updateVisibleEdit(record)}
@@ -65,14 +66,11 @@ const Category = () => {
 
   useEffect(() => {
     const timeOut = setTimeout(() => {
-      if (localStorage.getItem("jwt") !== null) setLogin(true);
-      else setLogin(false);
-      if (!isLogin) return <Redirect to="/" />;
-      else fetchData({});
+      fetchData({});
     }, 0);
 
     return () => clearTimeout(timeOut);
-  }, [isLogin]);
+  }, []);
 
   const handleTableChange = page => {
     setPagination({ ...pagination, current: page.current });
@@ -83,24 +81,16 @@ const Category = () => {
   };
 
   const fetchData = (params = {}) => {
-    setLoading(true);
-
-    axios
-      .get(`${process.env.REACT_APP_BASE_URL}/category`, {
-        headers: {
-          Authorization: JSON.parse(localStorage.getItem("jwt")).token
-        },
-        params
-      })
-      .then(response => {
-        if (response.data.status === 200) {
-          setPagination({
-            total: response.data.result.infoPage.totalAllCategory
-          });
-          setValueData(response.data.result.data);
-          setLoading(false);
-        }
-      });
+    dispatch(getCategory(props.token, params)).then(response => {
+      if (response.value.data.status === 200) {
+        setPagination({
+          ...pagination,
+          total: response.value.data.result.infoPage.totalAllCategories
+        });
+      } else {
+        setPagination({ ...pagination, total: 0 });
+      }
+    });
   };
 
   const updateVisibleAdd = () => {
@@ -114,34 +104,22 @@ const Category = () => {
     });
   };
 
-  const handleDelete = record => {
-    axios
-      .delete(`${process.env.REACT_APP_BASE_URL}/category/${record.id}`, {
-        headers: {
-          Authorization: JSON.parse(localStorage.getItem("jwt")).token
-        }
-      })
-      .then(response => {
-        if (response.data.status === 200) {
-          setValueData(valueData.filter(item => item.id !== record.id));
+  const handleDelete = async record => {
+    const deleteProcess = await dispatch(
+      deleteCategory(props.token, record.id)
+    );
 
-          notification.success({
-            message: "Success Deleted Category",
-            description: `Success Deleted Category ${record.name}.`
-          });
-        } else {
-          notification.error({
-            message: "Failed Deleted Category",
-            description: `I'm Sorry :(, We Can't Delete ${record.name} Category.`
-          });
-        }
-      })
-      .catch(err => {
-        notification.error({
-          message: "Failed Deleted Category",
-          description: `I'm Sorry :(, We Can't Delete ${record.name} Category.`
-        });
+    if (deleteProcess.value.data.status === 200) {
+      notification.success({
+        message: "Success Deleted Category",
+        description: `Success Deleted Category ${record.name}.`
       });
+    } else {
+      notification.error({
+        message: "Failed Deleted Category",
+        description: `I'm Sorry :(, We Can't Delete ${record.name} Category.`
+      });
+    }
   };
 
   return (
@@ -161,21 +139,23 @@ const Category = () => {
           updateVisible={updateVisibleAdd}
           title="Add Product"
           type="add"
+          token={props.token}
           onProcessSuccess={fetchData}
         />
         <CategoryDrawer
           visible={visibleEdit.visible}
           updateVisible={updateVisibleEdit}
-          title={`Edit Category ${visibleEdit.data.name}`}
+          title={`Edit Category`}
           data={visibleEdit.data}
           type="update"
+          token={props.token}
           onProcessSuccess={fetchData}
         />
         <Table
           columns={columns}
           rowKey={record => record.id}
-          dataSource={valueData}
-          loading={loading}
+          dataSource={categoryList}
+          loading={isLoading}
           pagination={pagination}
           scroll={width > 840 ? "" : { x: "max-content" }}
           onChange={handleTableChange}

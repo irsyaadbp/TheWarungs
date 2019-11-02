@@ -1,110 +1,112 @@
 const initialState = {
-  categoryList: [],
+  productList: [],
   infoPage: {},
   isLoading: false,
   isRejected: false,
   message: ""
 };
 
-const category = (state = initialState, action) => {
+const product = (state = initialState, action) => {
   switch (action.type) {
-    // ------------ NEW ------------
-    case "GET_CATEGORY_PENDING":
+    case "GET_PRODUCT_PENDING":
       return {
         ...state,
         isLoading: true,
         isRejected: false
       };
-    case "GET_CATEGORY_REJECTED":
+    case "GET_PRODUCT_REJECTED":
       return {
         ...state,
         isLoading: false,
         isRejected: true
       };
-    case "GET_CATEGORY_FULFILLED":
+    case "GET_PRODUCT_FULFILLED":
       return {
         ...state,
         isLoading: false,
-        categoryList: action.payload.data.result.data,
-        infoPage: action.payload.data.result.infoPage
+        productList:
+          action.payload.data.status === 200
+            ? action.payload.data.result.data
+            : [],
+        infoPage: action.payload.data.status === 200 ? action.payload.data.result.infoPage : {}
       };
     // ------------ NEW ------------
-    case "NEW_CATEGORY_PENDING":
+    case "NEW_PRODUCT_PENDING":
       return {
         ...state,
         isLoading: true,
         isRejected: false
       };
-    case "NEW_CATEGORY_REJECTED":
+    case "NEW_PRODUCT_REJECTED":
       return {
         ...state,
         isLoading: false,
         isRejected: true
       };
-    case "NEW_CATEGORY_FULFILLED":
+    case "NEW_PRODUCT_FULFILLED":
       if (action.payload.data.status === 200) {
         const newData = action.payload.data.result[0];
-        state.categoryList.push(newData);
+        state.productList.push(newData);
       }
       return {
         ...state,
         isLoading: false,
-        categoryList: state.categoryList,
+        productList: state.productList,
         message: action.payload.data
       };
     //// ------------ EDIT ------------
-    case "EDIT_CATEGORY_PENDING":
+    case "EDIT_PRODUCT_PENDING":
       return {
         ...state,
         isLoading: true,
         isRejected: false
       };
-    case "EDIT_CATEGORY_REJECTED":
+    case "EDIT_PRODUCT_REJECTED":
       return {
         ...state,
         isLoading: false,
         isRejected: true
       };
-    case "EDIT_CATEGORY_FULFILLED":
-      console.log(action.payload.data, "edit fulfiled");
-      let afterEdit = state.categoryList;
+    case "EDIT_PRODUCT_FULFILLED":
+      let afterEdit = state.productList;
       if (action.payload.data.status === 200) {
-        afterEdit = state.categoryList.map(category => {
-          if (category.id === Number(action.payload.data.result[0].id))
+        afterEdit = state.productList.map(product => {
+          if (product.id === Number(action.payload.data.result[0].id))
             return action.payload.data.result[0];
-          return category;
+          return product;
         });
       }
       return {
         ...state,
         isLoading: false,
-        categoryList: afterEdit,
+        productList: afterEdit,
         message: action.payload.data
       };
     // ------------ DELETE ------------
-    case "DELETE_CATEGORY_PENDING":
+    case "DELETE_PRODUCT_PENDING":
       return {
         ...state,
         isLoading: true,
         isRejected: false
       };
-    case "DELETE_CATEGORY_REJECTED":
+    case "DELETE_PRODUCT_REJECTED":
       return {
         ...state,
         isLoading: false,
         isRejected: true
       };
-    case "DELETE_CATEGORY_FULFILLED":
+    case "DELETE_PRODUCT_FULFILLED":
       let id = "";
-      let afterDelete = state.categoryList;
+      let afterDelete = state.productList;
+      console.log(action.payload.data, "del full");
       if (action.payload.data.status === 200) {
         id = action.payload.data.result.id;
-        afterDelete = state.categoryList.filter(item => item.id !== Number(id));
+        afterDelete = state.productList.filter(item => item.id !== Number(id));
       }
       return {
         ...state,
         isLoading: false,
-        categoryList: afterDelete,
+        productList: afterDelete,
         message: action.payload.data
       };
     default:
@@ -112,4 +114,4 @@ const category = (state = initialState, action) => {
   }
 };
 
-export default category;
+export default product;

@@ -1,19 +1,22 @@
 import React, { useState } from "react";
 import { Layout, Menu, Icon, Avatar} from "antd";
-import { Link, Redirect } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
+
+import { logout } from "../redux/actions/auth";
+import { useDispatch } from "react-redux";
 
 const { Sider} = Layout;
 const { SubMenu } = Menu;
 
+
 const Navbar = props => {
   const [collapsed, setCollapsed] = useState(true);
-  const [isLogedIn, setLogedIn] = useState(true);
-  const logout = () => {
-    localStorage.removeItem("jwt");
-    setLogedIn(false);
-  }
 
-  if(!isLogedIn) return <Redirect to="/"/>
+  const dispatch = useDispatch()
+  const userLogout = async () => {
+    await dispatch(logout());
+    props.history.push('/');
+  }
 
   return (
       <Sider
@@ -61,15 +64,13 @@ const Navbar = props => {
               <Link to="/dashboard/categories">Categories</Link>
             </Menu.Item>
           </SubMenu>
-          <Menu.Item key="5" onClick={logout}>
-            {/* <Link to="/logout"> */}
+          <Menu.Item key="5" onClick={userLogout}>
               <Icon type="poweroff" />
               <span>Log out</span>
-            {/* </Link> */}
           </Menu.Item>
         </Menu>
       </Sider>
   );
 };
 
-export default Navbar;
+export default withRouter(Navbar);

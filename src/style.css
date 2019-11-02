@@ -279,3 +279,7 @@ header#topHeader {
   margin-top: 30px;
   margin-bottom: 30px;
 }
+
+.border-selected {
+  border: solid 8px #1890ff;
+}

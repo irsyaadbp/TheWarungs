@@ -3,13 +3,22 @@ import CardProduct from "../../components/CardProduct";
 import { Row, Divider, Card, Spin, Input, Select, Pagination } from "antd";
 import axios from "axios";
 import { Redirect } from "react-router-dom";
+
+import { getProduct } from "../../redux/actions/product";
+import { useSelector, useDispatch } from "react-redux";
+
 const { Search } = Input;
 const { Option } = Select;
 
-const Order = () => {
+const Order = props => {
   const [dataProduct, setDataProduct] = useState([]);
   const [isLogin, setLogin] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const { productList, isLoading, infoPage } = useSelector(
+    state => state.product
+  );
+  const dispatch = useDispatch();
 
   const [dataParams, setDataParams] = useState({
     search: "",
@@ -22,45 +31,31 @@ const Order = () => {
 
   useEffect(() => {
     const timeOut = setTimeout(() => {
-      if (localStorage.getItem("jwt") !== null) setLogin(true);
-      else setLogin(false);
-      if (!isLogin) return <Redirect to="/" />;
-      else fetchData(dataParams);
+      // if (localStorage.getItem("user") !== null) setLogin(true);
+      // else setLogin(false);
+      // if (!isLogin) return <Redirect to="/" />;
+      // else
+      fetchData(dataParams);
     }, 0);
 
     return () => clearTimeout(timeOut);
-  }, [isLogin, dataParams]);
+  }, [dataParams]);
 
-  const fetchData = (params = {}) => {
-    setLoading(true);
+  const fetchData = async (params = {}) => {
+    const getData = await dispatch(getProduct(props.token, params));
 
-    axios
-      .get(`${process.env.REACT_APP_BASE_URL}/product`, {
-        headers: {
-          Authorization: JSON.parse(localStorage.getItem("jwt")).token
-        },
-        params
-      })
-      .then(response => {
-        setLoading(false);
-        if (response.data.status === 200) {
-          setDataProduct(() =>
-            response.data.result.data.map(item => ({
-              ...item,
-              isSelected: false
-            }))
-          );
-          setMaxProduct(response.data.result.infoPage.totalAllProduct);
-        } else {
-          setDataProduct([]);
-          setMaxProduct(0);
-        }
-      })
-      .catch(err => {
-        setLoading(false);
-        setDataProduct([]);
-        setMaxProduct(0);
-      });
+    if (getData.value.data.status === 200) {
+      setDataProduct(() =>
+        getData.value.data.result.data.map(item => ({
+          ...item,
+          isSelected: false
+        }))
+      );
+      setMaxProduct(getData.value.data.result.infoPage.totalAllProduct);
+    } else {
+      setDataProduct([]);
+      setMaxProduct(0);
+    }
   };
 
   const onSearch = value => {
@@ -79,7 +74,17 @@ const Order = () => {
     setDataParams({ ...dataParams, page: current });
   };
 
-  console.log(dataProduct, "dataProduct");
+  const handleSelectedProduct = product => {
+    product.isSelected = !product.isSelected;
+    
+    const afterEdit = dataProduct.map(item => {
+      if (item.id === Number(product.id))
+        return product;
+      return item;
+    });
+
+    setDataProduct(afterEdit);
+  };
 
   return (
     <div id="order-container">
@@ -116,7 +121,7 @@ const Order = () => {
         style={{ marginTop: "16px" }}
         className="row-product"
       >
-        {loading ? (
+        {isLoading ? (
           <Spin />
         ) : (
           <div>
@@ -132,7 +137,14 @@ const Order = () => {
                 </p>
               </div>
             ) : (
-              dataProduct.map(item => <CardProduct data={item} key={item.id} />)
+              dataProduct.map(item => (
+                <CardProduct
+                  onClick={() => handleSelectedProduct(item)}
+                  data={item}
+                  key={item.id}
+                  isSelected={item.isSelected}
+                />
+              ))
             )}
           </div>
         )}

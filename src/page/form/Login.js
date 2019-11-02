@@ -1,57 +1,39 @@
 import React, { useState, useEffect } from "react";
-import { Form, Icon, Input, Button, Row, Col, Alert } from "antd";
-import { Link, Redirect } from "react-router-dom";
-import axios from "axios";
+import { Form, Icon, Input, Button, Row, Col } from "antd";
+import { Link, withRouter } from "react-router-dom";
+// import axios from "axios";
 import "../../style.css";
 
-const Login = () => {
+import { login, getToken } from "../../redux/actions/auth";
+import { useSelector, useDispatch } from "react-redux";
+
+const Login = props => {
   const initialFormState = { username: "", password: "" };
   const [input, setInput] = useState(initialFormState);
-  const [response, setResponse] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [redirect, setRedirect] = useState(false);
+
+  const { loginResponse, isLoading, token } = useSelector(state => state.auth);
+  const dispatch = useDispatch();
 
   useEffect(() => {
+
     const isRedirect = setTimeout(() => {
-      if (localStorage.getItem("jwt") !== null) return setRedirect(true);
-      else return setRedirect(false);
-    }, 100);
+      getUserToken()
+    }, 0);
 
     return () => {
       clearTimeout(isRedirect);
     };
-  }, [redirect]);
+  }, [token, loginResponse]);
 
-  if (redirect) return <Redirect to="/dashboard" />;
-
-  function authenticate(dataUser) {
-    if (typeof window !== undefined) {
-      localStorage.setItem("jwt", JSON.stringify(dataUser));
-      setRedirect(true);
-    }
+  const getUserToken = async () => {
+    await dispatch(getToken());
+    if (token !== null) props.history.push("/dashboard");
   }
 
-  const handleSubmit = event => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    setLoading(true);
-    axios
-      .post(`${process.env.REACT_APP_BASE_URL}/user/login`, input)
-      .then(result => {
-        if (result.data.status === 400) setResponse(result.data);
-        if (result.data.status === 200) {
-          setResponse({
-            status: result.data.status,
-            message:
-              "Please wait a moment, you will be redirect in a few seconds"
-          });
-          authenticate(result.data.result);
-        }
-        setLoading(false);
-      })
-      .catch(err => {
-        setResponse({ status: 400, message: "Connection lost :(" });
-        setLoading(false);
-      });
+
+    await dispatch(login(input));
   };
 
   const handleChange = inputName => event => {
@@ -62,20 +44,16 @@ const Login = () => {
     <div id="login">
       <Row className="row" type="flex">
         <Col lg={{ span: 17 }} xs={{ span: 0 }} className="bg-image"></Col>
-        <Col
-          lg={{ span: 7 }}
-          xs={{ span: 24 }}
-          className="login-container"
-        >
+        <Col lg={{ span: 7 }} xs={{ span: 24 }} className="login-container">
           <Row style={{ height: "40%" }} type="flex" align="middle">
             <div className="title-container">
               <p className="title">The Warungs</p>
               <p className="tagline">The Best Solution For Your Restaurant</p>
             </div>
-            {response.status === 400 ? (
+            {/* {loginResponse.status === 400 ? (
               <Alert
                 message="Error Login"
-                description={response.message}
+                description={loginResponse.message}
                 type="error"
                 showIcon
                 style={{ width: "100%" }}
@@ -84,17 +62,17 @@ const Login = () => {
               ""
             )}
 
-            {response.status === 200 ? (
+            {loginResponse.status === 200 ? (
               <Alert
                 message="Success Login"
-                description={response.message}
+                description={loginResponse.result}
                 type="success"
                 showIcon
                 style={{ width: "100%" }}
               />
             ) : (
               ""
-            )}
+            )} */}
           </Row>
           <Row style={{ height: "60%" }} type="flex">
             <Form className="login-form" onSubmit={handleSubmit}>
@@ -125,7 +103,7 @@ const Login = () => {
                 type="primary"
                 htmlType="submit"
                 className="login-form-button"
-                loading={loading}
+                loading={isLoading}
                 size="large"
               >
                 Log in
@@ -139,4 +117,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default withRouter(Login);

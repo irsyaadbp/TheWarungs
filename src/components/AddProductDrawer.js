@@ -9,13 +9,16 @@ import {
   notification,
   InputNumber
 } from "antd";
-import axios from "axios";
+import { createNewProduct } from "../redux/actions/product";
+import { useSelector, useDispatch } from "react-redux";
 const { Option } = Select;
 const { TextArea } = Input;
 
 const AddProductDrawer = props => {
   const [visible, setVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
+
+  const { isLoading } = useSelector(state => state.product);
+  const dispatch = useDispatch();
 
   const initialForm = {
     prod_name: "",
@@ -35,40 +38,25 @@ const AddProductDrawer = props => {
     setSubmitValue({ ...submitValue, [inputName]: value });
   };
 
-  const submitProduct = event => {
+  const submitProduct = async event => {
     event.preventDefault();
 
-    setLoading(true);
-    const headers = {
-      "Authorization": JSON.parse(localStorage.getItem("jwt")).token
-    };
-    axios
-      .post(`${process.env.REACT_APP_BASE_URL}/product`, submitValue, { headers })
-      .then(result => {
-        setLoading(false);
-        if (result.data.status === 200) {
-          notification.success({
-            message: "Success Added Product",
-            description: `Success Added Product ${submitValue.prod_name}.`
-          });
-          setSubmitValue(initialForm);
-        } else {
-          notification.error({
-            message: "Failed Add Product",
-            description: result.data.message
-          });
-        }
-        props.onAddSuccess();
-      })
-      .catch(err => {
-        setLoading(false);
-        
-        notification.error({
-          message: "Failed Add Product",
-          description: "Connection lost :("
-        });
-        console.log(err);
+    const addProduct = await dispatch(
+      createNewProduct(props.token, submitValue)
+    );
+
+    if (addProduct.value.data.status === 200) {
+      notification.success({
+        message: "Success Added Product",
+        description: `Success Added Product ${submitValue.prod_name}.`
       });
+      setSubmitValue(initialForm);
+    } else {
+      notification.error({
+        message: "Failed Add Product",
+        description: addProduct.value.data.message
+      });
+    }
   };
 
   return (
@@ -77,7 +65,7 @@ const AddProductDrawer = props => {
         type="primary"
         icon="plus"
         onClick={() => setVisible(true)}
-        style={{ marginBottom: " 20px"}}
+        style={{ marginBottom: " 20px" }}
         size="large"
       >
         Add
@@ -127,7 +115,7 @@ const AddProductDrawer = props => {
             onChange={onChangeInputNumberAndSelect("category_id")}
             style={{ marginBottom: "15px" }}
           >
-            {props.categoryData.data.map((item, index) => (
+            {props.categoryData.map((item, index) => (
               <Option value={item.id} key={index}>
                 {item.name}
               </Option>
@@ -139,6 +127,7 @@ const AddProductDrawer = props => {
             defaultValue={1000}
             style={{ width: "100%", marginBottom: "15px" }}
             onChange={onChangeInputNumberAndSelect("price")}
+            value={submitValue.price}
           />
           <span className="title-h4">Quantity</span>
           <InputNumber
@@ -146,13 +135,14 @@ const AddProductDrawer = props => {
             defaultValue={0}
             style={{ width: "100%" }}
             onChange={onChangeInputNumberAndSelect("quantity")}
+            value={submitValue.quantity}
           />
           <Button
             style={{ marginTop: "15px" }}
             type="primary"
             htmlType="submit"
             className="login-form-button"
-            loading={loading}
+            loading={isLoading}
           >
             Add Product
           </Button>
