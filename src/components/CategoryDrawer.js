@@ -1,91 +1,64 @@
 import React, { useState, useEffect } from "react";
 import { Drawer, Button, Input, Form, Icon, notification } from "antd";
-import axios from "axios";
+import { createNewCategory, editCategory } from "../redux/actions/category";
+import { useSelector, useDispatch } from "react-redux";
 
 const CategoryDrawer = props => {
-  const [loading, setLoading] = useState(false);
   const [submitValue, setSubmitValue] = useState({ id: "",category_name: "" });
-  const [response, setResponse] = useState({
-    status: "",
-    msg: "",
-    loading: false
-  });
+
+  const { isLoading } = useSelector(
+    state => state.category
+  );
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if(props.type === "update") setSubmitValue({id: props.data.id,category_name: props.data.name})
-  }, [props])
+    else setSubmitValue({ id: "",category_name: "" });
+  }, [props]);
 
   const handleChange = inputName => event => {
     setSubmitValue({ ...submitValue, [inputName]: event.target.value });
   };
 
-  const addCategory = event => {
+  const addCategory = async event => {
     event.preventDefault();
 
-    setLoading(true);
-    const headers = {
-      "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
-    };
-    axios
-      .post("https://the-warungs.herokuapp.com/category", submitValue, { headers })
-      .then(result => {
-        setLoading(false);
-        
-        if (result.data.status === 200) {
-          notification.success({
-            message: "Success Add Category",
-            description: `Success Edited Product ${submitValue.prod_name}.`
-          });
-          props.onProcessSuccess()
-        } else {
-          notification.error({
-            message: "Failed Add Category",
-            description: result.data.message
-          });
-        }
-      })
-      .catch(err => {
-        setLoading(false);
-        notification.error({
-          message: "Failed Add Category",
-          description: "Connection lost :("
-        });
-        console.log(err);
+    const addNewCategory = await dispatch(createNewCategory(props.token, submitValue));
+
+    if(addNewCategory.value.data.status === 200 ){
+      notification.success({
+        message: "Success Added Category",
+        description: `Success Added Category ${submitValue.category_name}.`
       });
+    } else {
+      notification.error({
+        message: "Failed Add Category",
+        description: addNewCategory.value.data.message
+      });
+    }
+
   };
 
-  const editCategory = event => {
+  const editCategoryName = async event => {
     event.preventDefault();
 
-    setResponse({ ...response, loading: true });
-    const headers = {
-      "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
-    };
-    axios
-      .put(`https://the-warungs.herokuapp.com/category/${submitValue.id}`, submitValue, { headers })
-      .then(result => {
-
-        if (result.data.status === 200) {
-          notification.success({
-            message: "Success Edited Category",
-            description: `Success Edited Category ${submitValue.category_name}.`
-          });
-          props.onProcessSuccess()
-        } else {
-          notification.error({
-            message: "Failed Edit Category",
-            description: result.data.message
-          });
-        }
-      })
-      .catch(err => {
-        notification.error({
-          message: "Failed Edit Product",
-          description: "Connection lostasdasd :("
-        });
+    props.updateVisible(submitValue)
+    const updateCategory = await dispatch(editCategory(props.token, submitValue));
+    
+    if(updateCategory.value.data.status === 200 ){
+      notification.success({
+        message: "Success Edited Category",
+        description: `Success Edited Category ${submitValue.category_name}.`
       });
-  };
+    } else {
+      notification.error({
+        message: "Failed Edit Category",
+        description: updateCategory.value.data.message
+      });
+    }
 
+  };
+  
   return (
     <Drawer
       height="50vh"
@@ -95,9 +68,10 @@ const CategoryDrawer = props => {
       onClose={props.updateVisible}
       visible={props.visible}
     >
+      
       <Form
         className="login-form"
-        onSubmit={props.type === "add" ? addCategory : editCategory}
+        onSubmit={props.type === "add" ? addCategory : editCategoryName}
         style={{ overflow: "auto" }}
       >
         <span className="title-h4">Category Name</span>
@@ -115,10 +89,10 @@ const CategoryDrawer = props => {
           type="primary"
           htmlType="submit"
           className="login-form-button"
-          loading={loading}
+          loading={isLoading}
           size="large"
         >
-          Add Category
+          {props.type === "add"? "Add Category" : "Edit Category"}
         </Button>
       </Form>
     </Drawer>

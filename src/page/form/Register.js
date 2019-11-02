@@ -1,38 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { Form, Icon, Input, Button, Row, Col, Alert } from "antd";
-import { Link, Redirect } from "react-router-dom";
-import axios from "axios";
+import { Link } from "react-router-dom";
 import "../../style.css";
+import { useDispatch, useSelector } from "react-redux";
+import { register } from "../../redux/actions/auth";
 
 const Register = () => {
   const initialFormState = { username: "", password: "", user_role: "" };
   const [input, setInput] = useState(initialFormState);
-  const [response, setResponse] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [redirect, setRedirect] = useState(false);
+
+  const { registerResponse, isLoading } = useSelector(state => state.auth);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (localStorage.getItem("jwt") !== null) setRedirect(true);
-    else setRedirect(false);
-  }, []);
+    if (registerResponse.status === 200) clearForm();
+  }, [registerResponse]);
 
-  if (redirect) return <Redirect to="/dashboard" />;
 
-  const handleSubmit = event => {
+  const handleSubmit = async event => {
     event.preventDefault();
-    setLoading(true);
-    axios
-      .post("https://the-warungs.herokuapp.com/user/register", input)
-      .then(result => {
-        setResponse(result.data);
-        setLoading(false);
-        if (result.data.status === 200) clearForm();
-      })
-      .catch(err => {
-        setResponse({ status: 400, message: "Connection lost :(" });
-        console.log(err);
-        setLoading(false);
-      });
+
+    await dispatch(register(input));
   };
 
   const clearForm = () => {
@@ -57,10 +45,10 @@ const Register = () => {
               <p className="title">The Warungs</p>
               <p className="tagline">The Best Solution For Your Restaurant</p>
             </div>
-            {response.status === 400 ? (
+            {registerResponse.status === 400 ? (
               <Alert
                 message="Error Register"
-                description={response.message}
+                description={registerResponse.message}
                 type="error"
                 showIcon
                 style={{ width: "100%" }}
@@ -69,10 +57,10 @@ const Register = () => {
               ""
             )}
 
-            {response.status === 200 ? (
+            {registerResponse.status === 200 ? (
               <Alert
                 message="Success Register"
-                description={response.result}
+                description={registerResponse.result}
                 type="success"
                 showIcon
                 style={{ width: "100%" }}
@@ -117,11 +105,11 @@ const Register = () => {
                 size="large"
               />
               <Button
-              style={{ marginBottom: "15px" }}
+                style={{ marginBottom: "15px" }}
                 type="primary"
                 htmlType="submit"
                 className="login-form-button"
-                loading={loading}
+                loading={isLoading}
                 size="large"
               >
                 Register

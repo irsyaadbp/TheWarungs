@@ -8,32 +8,37 @@ import {
   Popconfirm,
   notification
 } from "antd";
-import { Redirect } from "react-router-dom";
-import axios from "axios";
 import useWindowDimensions from "../../helpers/useWindowDimensions";
 import AddProductDrawer from "../../components/AddProductDrawer";
 import EditProductDrawer from "../../components/EditProductDrawer";
 
+import { getProduct, deleteProduct } from "../../redux/actions/product";
+import { getCategory } from "../../redux/actions/category";
+import { useSelector, useDispatch } from "react-redux";
+
 const Product = props => {
-  const [valueData, setValueData] = useState([]);
   const [pagination, setPagination] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [isLogin, setLogin] = useState(false);
   const { width } = useWindowDimensions();
   const [visibilityEdit, setVisibilityEdit] = useState(false);
   const [dataRow, setDataRow] = useState({});
-  const [categoryData, setCategoryData] = useState({
-    status: "",
-    data: [],
-    error: ""
-  });
+
+  const { productState, categoryList } = useSelector(state => ({
+    productState: state.product,
+    categoryList: state.category.categoryList
+  }));
+
+  const { productList, isLoading } = productState;
+
+  const dispatch = useDispatch();
 
   const columns = [
     {
       title: "Image",
       dataIndex: "image",
       key: "image",
-      render: (text, record) => (<img src={text} className="img-list-product" alt={record.name}/>)
+      render: (text, record) => (
+        <img src={text} className="img-list-product" alt={record.name} />
+      )
     },
     {
       title: "Name",
@@ -68,7 +73,7 @@ const Product = props => {
       key: "action",
 
       render: (id, record) =>
-        valueData.length >= 1 ? (
+        productList.length >= 1 ? (
           <span>
             <Button
               onClick={event => editModalVisible(record)}
@@ -96,7 +101,7 @@ const Product = props => {
 
   const editModalVisible = record => {
     setVisibilityEdit(!visibilityEdit);
-    const currentCategory = categoryData.data.find(
+    const currentCategory = categoryList.find(
       item => item.name === record.category
     );
     const row = {
@@ -104,24 +109,20 @@ const Product = props => {
       category:
         currentCategory !== undefined ? currentCategory.id : record.category
     };
+
     setDataRow(row);
   };
 
   useEffect(() => {
     const timeOut = setTimeout(() => {
-      if (localStorage.getItem("jwt") !== null) setLogin(true);
-      else setLogin(false);
-      if (!isLogin) return <Redirect to="/" />;
-      else {
-        fetchData({});
-        getCategory();
-      }
-    }, 100);
+      fetchData({});
+    }, 0);
 
     return () => clearTimeout(timeOut);
-  }, [isLogin]);
+  }, []);
 
   const handleTableChange = (page, filters, sorter) => {
+    console.log(page, "product page");
     setPagination({ ...pagination, current: page.current });
     if (sorter.field === "product_name") sorter.field = "name";
 
@@ -135,82 +136,34 @@ const Product = props => {
     });
   };
 
-  const handleDelete = record => {
-    axios
-      .delete(`https://the-warungs.herokuapp.com/product/${record.id}`, {
-        headers: {
-          "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
-        }
-      })
-      .then(response => {
-        if (response.data.status === 200) {
-          setValueData(valueData.filter(item => item.id !== record.id));
+  const handleDelete = async record => {
+    console.log(record, "record");
+    const deleteProcess = await dispatch(
+      deleteProduct(props.token, record.id)
+    );
 
-          notification.success({
-            message: "Success Deleted Product",
-            description: `Success Deleted Product ${record.product_name}.`
-          });
-        } else {
-          notification.error({
-            message: "Failed Deleted Product",
-            description: `I'm Sorry :(, We Can't Delete Product ${record.product_name}.`
-          });
-        }
-      })
-      .catch(err => {
-        notification.error({
-          message: "Failed Deleted Product",
-          description: `Connection lost :(`
-        });
+    if (deleteProcess.value.data.status === 200) {
+      notification.success({
+        message: "Success Deleted Product",
+        description: `Success Deleted Product ${record.product_name}.`
       });
+    } else {
+      notification.error({
+        message: "Failed Deleted Category",
+        description: `I'm Sorry :(, We Can't Delete ${record.product_name} Category.`
+      });
+    }
   };
 
-  const fetchData = (params = {}) => {
-    setLoading(true);
-
-    axios
-      .get("https://the-warungs.herokuapp.com/product", {
-        headers: {
-          "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
-        },
-        params
-      })
-      .then(response => {
-        if (response.data.status === 200) {
-          setPagination({
-            total: response.data.result.infoPage.totalAllProduct
-          });
-          setValueData(response.data.result.data);
-          setLoading(false);
-        }
-      });
-  };
-
-  const getCategory = () => {
-    axios
-      .get("https://the-warungs.herokuapp.com/category", {
-        headers: {
-          "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
-        }
-      })
-      .then(response => {
-        if (response.data.status === 200) {
-          setCategoryData({
-            status: 200,
-            data: response.data.result.data,
-            error: ""
-          });
-        } else {
-          setCategoryData({
-            status: 400,
-            data: [],
-            error: response.data.result.message
-          });
-        }
-      })
-      .catch(err =>
-        setCategoryData({ status: 400, data: [], error: "Connection lost :(" })
-      );
+  const fetchData = async (params = {}) => {
+    dispatch(getProduct(props.token, params)).then(response => {
+      if(response.value.data.status === 200){
+        setPagination({...pagination, total: response.value.data.result.infoPage.totalAllProduct})
+      }else{
+        setPagination({...pagination, total: 0})
+      }
+    });
+    await dispatch(getCategory(props.token));
   };
 
   return (
@@ -220,15 +173,15 @@ const Product = props => {
           visible={visibilityEdit}
           updateVisible={editModalVisible}
           dataEdit={dataRow}
-          categoryData={categoryData}
-          onEditSuccess={fetchData}
+          categoryData={categoryList}
+          token={props.token}
         />
-        <AddProductDrawer categoryData={categoryData} onAddSuccess={fetchData}/>
+        <AddProductDrawer categoryData={categoryList} token={props.token} />
         <Table
           columns={columns}
           rowKey={record => record.id}
-          dataSource={valueData}
-          loading={loading}
+          dataSource={productList}
+          loading={isLoading}
           pagination={pagination}
           scroll={width > 840 ? "" : { x: "max-content" }}
           onChange={handleTableChange}

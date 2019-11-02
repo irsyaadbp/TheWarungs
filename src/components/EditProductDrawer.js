@@ -9,12 +9,17 @@ import {
   InputNumber,
   notification
 } from "antd";
-import axios from "axios";
+
+import { editProduct } from "../redux/actions/product";
+import { useSelector, useDispatch } from "react-redux";
+
 const { Option } = Select;
 const { TextArea } = Input;
 
 const EditProductDrawer = props => {
-  const [loading, setLoading] = useState(false);
+
+  const { isLoading } = useSelector(state => state.product);
+  const dispatch = useDispatch();
 
   const [submitValue, setSubmitValue] = useState({
     prod_name: "",
@@ -27,6 +32,7 @@ const EditProductDrawer = props => {
 
   useEffect(() => {
     setSubmitValue({
+      id: props.dataEdit.id,
       prod_name: props.dataEdit.product_name,
       prod_desc: props.dataEdit.description,
       prod_image: props.dataEdit.image,
@@ -36,45 +42,23 @@ const EditProductDrawer = props => {
     });
   }, [props.dataEdit]);
 
-  const updateProduct = event => {
+  const updateProduct = async event => {
     event.preventDefault();
 
-    setLoading(true);
+    const editProductDetail = await dispatch(editProduct(props.token, submitValue));
 
-    const headers = {
-      "x-access-token": JSON.parse(localStorage.getItem("jwt")).token
-    };
-    axios
-      .put(
-        `https://the-warungs.herokuapp.com/product/${props.dataEdit.id}`,
-        submitValue,
-        { headers }
-      )
-      .then(result => {
-        setLoading(false);
-        console.log(result.data.status)
-        if (result.data.status === 200) {
-          notification.success({
-            message: "Success Edited Product",
-            description: `Success Edited Product ${submitValue.prod_name}.`
-          });
-          props.onEditSuccess();
-        } else {
-          notification.error({
-            message: "Failed Edit Product",
-            description: result.data.message
-          });
-        }
-      })
-      .catch(err => {
-        setLoading(false);
-
-        notification.error({
-          message: "Failed Edit Product",
-          description: "Connection lost :("
-        });
-        console.log(err);
+    if(editProductDetail.value.data.status === 200 ){
+      notification.success({
+        message: "Success Edited Product",
+        description: `Success Edited Product ${submitValue.prod_name}.`
       });
+      props.updateVisible(submitValue)
+    } else {
+      notification.error({
+        message: "Failed Edit Product",
+        description: editProductDetail.value.data.message
+      });
+    }
   };
 
   const handleChange = inputName => event => {
@@ -122,11 +106,11 @@ const EditProductDrawer = props => {
           value={submitValue.prod_desc}
         />
         <Select
-          defaultValue={submitValue.category_id}
+          value={submitValue.category_id}
           onChange={onChangeInputNumber("category_id")}
           style={{ marginBottom: "15px" }}
         >
-          {props.categoryData.data.map((item, index) => (
+          {props.categoryData.map((item, index) => (
             <Option value={item.id} key={index}>
               {item.name}
             </Option>
@@ -135,14 +119,14 @@ const EditProductDrawer = props => {
         <span className="title-h4">Price</span>
         <InputNumber
           min={1000}
-          defaultValue={submitValue.price}
+          value={submitValue.price}
           style={{ width: "100%", marginBottom: "15px" }}
           onChange={onChangeInputNumber("price")}
         />
         <span className="title-h4">Quantity</span>
         <InputNumber
           min={0}
-          defaultValue={submitValue.quantity}
+          value={submitValue.quantity}
           style={{ width: "100%" }}
           onChange={onChangeInputNumber("quantity")}
         />
@@ -151,7 +135,7 @@ const EditProductDrawer = props => {
           type="primary"
           htmlType="submit"
           className="login-form-button"
-          loading={loading}
+          loading={isLoading}
         >
           Update Product
         </Button>
