@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CardProduct from "../../components/CardProduct";
 import { Row, Divider, Card, Spin, Input, Select, Pagination } from "antd";
-import axios from "axios";
-import { Redirect } from "react-router-dom";
 
 import { getProduct } from "../../redux/actions/product";
 import { useSelector, useDispatch } from "react-redux";
@@ -12,10 +10,7 @@ const { Option } = Select;
 
 const Order = props => {
   const [dataProduct, setDataProduct] = useState([]);
-  const [isLogin, setLogin] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  const { productList, isLoading, infoPage } = useSelector(
+  const { isLoading } = useSelector(
     state => state.product
   );
   const dispatch = useDispatch();
