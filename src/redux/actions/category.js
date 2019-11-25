@@ -24,7 +24,6 @@ export const createNewCategory = (token, input) => {
 };
 
 export const editCategory = (token, input) => {
-    console.log(token, input, "action edit")
     return {
       type: "EDIT_CATEGORY",
       payload: axios.put(`${process.env.REACT_APP_BASE_URL}/category/${input.id}`, input, {

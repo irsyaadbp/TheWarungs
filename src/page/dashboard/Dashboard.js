@@ -1,24 +1,36 @@
 import React, { useState, useEffect } from "react";
 import useWindowDimensions from "../../helpers/useWindowDimensions";
-import { Layout, Icon, Divider, Button } from "antd";
-import { Route, Redirect, } from "react-router-dom";
+import { Layout, Icon, Divider, Button, notification } from "antd";
+import { Route, Redirect } from "react-router-dom";
 import Home from "./Home";
 import Product from "./Product";
 import Navbar from "../../components/Navbar";
 import CardCart from "../../components/CardCart";
 import Category from "./Category";
 import Order from "./Order";
+import NumberFormat from "react-number-format";
 
-import { getToken } from "../../redux/actions/auth";
+import { getUserDetail } from "../../redux/actions/auth";
+import { checkoutOrder } from "../../redux/actions/order";
 import { useSelector, useDispatch } from "react-redux";
 
 const { Content, Header } = Layout;
 
-const Dashboard = props => {
+const Dashboard = () => {
   const [distance, setDistance] = useState("0");
   const { width } = useWindowDimensions();
+  // const [input, setInput] = useState({
+  //   admin_id: "",
+  //   totalPrice: 0,
+  //   detailOrder: []
+  // });
 
-  const {token} = useSelector(state => state.auth);
+  const { user, detailOrder, totalPrice } = useSelector(state => ({
+    user: state.auth.user,
+    detailOrder: state.order.detailOrder,
+    totalPrice: state.order.total_price
+  }));
+
   const dispatch = useDispatch();
 
   const openNav = () => {
@@ -32,14 +44,36 @@ const Dashboard = props => {
     setDistance("0");
   };
 
-  useEffect( () => {
+  useEffect(() => {
     const timeout = setTimeout(async () => {
-      await dispatch(getToken())
-    }, 0)
+      await dispatch(getUserDetail());
+    }, 0);
     return () => clearTimeout(timeout);
   }, []);
 
-  // if (redirect) return <Redirect to="/" />;
+  const submitCheckoutOrder = async () => {
+    const submitCheckout = await dispatch(
+      checkoutOrder(user.token, {
+        admin_id: user.user_id,
+        total_price: totalPrice,
+        detail_order: detailOrder
+      })
+    );
+
+    console.log(submitCheckout.value.data, "submit value");
+
+    if (submitCheckout.value.data.status === 200) {
+      notification.success({
+        message: "Success",
+        description: `Checkout Successfully.`
+      });
+    } else {
+      notification.error({
+        message: "Failed",
+        description: `Checkout failed, please try again.`
+      });
+    }
+  };
 
   return (
     <Layout
@@ -53,44 +87,58 @@ const Dashboard = props => {
           <Divider className="divider" />
         </Header>
         <div className="cart-container">
-          <CardCart/>
-          <CardCart/>
-          <CardCart/>
-          <CardCart/>
-          <CardCart/>
-          <CardCart/>
-          <CardCart/>
-          <CardCart/>
-          <CardCart/>
-          <CardCart/>
+          {detailOrder.length === 0
+            ? (<span style={{color: "rgb(204, 204, 204)"}}>Empty Cart</span>)
+            : detailOrder.map((item, index) => {
+                return <CardCart key={index} product={item} />;
+              })}
         </div>
         <div className="cart-total">
-          <span className="title-h2-white title-total-cart" >Total:</span>
-          <span className="title-h2-white total-cart">Rp 2.000.020</span>
+          <span className="title-h2-white title-total-cart">Total:</span>
+          <NumberFormat
+            value={totalPrice}
+            className="title-h2-white total-cart"
+            displayType={"text"}
+            thousandSeparator={"."}
+            decimalSeparator={","}
+            prefix={"Rp"}
+          />
         </div>
         <div className="cart-checkout">
-          <Button type="primary" className="btn-cart-checkout">Checkout</Button>
-          <Button type="default" className="btn-cart-cancel" ghost>Clear all</Button>
+          <Button
+            type="primary"
+            className="btn-cart-checkout"
+            onClick={submitCheckoutOrder}
+          >
+            Checkout
+          </Button>
+          <Button type="default" className="btn-cart-cancel" ghost>
+            Clear all
+          </Button>
         </div>
       </div>
       <Navbar />
-
       <Layout>
         <Header id="topHeader">
           <span className="title-h2">The Warungs</span>
 
-          <span
-            className="shopping-cart"
-            onClick={openNav}
-          >
+          <span className="shopping-cart" onClick={openNav}>
             <Icon type="shopping-cart" />
           </span>
         </Header>
         <Content className="content">
-          <Route exact path="/dashboard">{!token ? (<Redirect to="/"/>) : (<Home token={token}/>)}</Route>
-          <Route path="/dashboard/order">{!token ? (<Redirect to="/"/>) : (<Order token={token}/>)}</Route>
-          <Route path="/dashboard/products">{!token ? (<Redirect to="/"/>) : (<Product token={token}/>)}</Route>
-          <Route path="/dashboard/categories">{!token ? (<Redirect to="/"/>) : (<Category token={token}/>)}</Route>
+          <Route exact path="/dashboard">
+            {!user ? <Redirect to="/" /> : <Home user={user} />}
+          </Route>
+          <Route path="/dashboard/order">
+            {!user ? <Redirect to="/" /> : <Order user={user} />}
+          </Route>
+          <Route path="/dashboard/products">
+            {!user ? <Redirect to="/" /> : <Product user={user} />}
+          </Route>
+          <Route path="/dashboard/categories">
+            {!user ? <Redirect to="/" /> : <Category user={user} />}
+          </Route>
         </Content>
       </Layout>
     </Layout>

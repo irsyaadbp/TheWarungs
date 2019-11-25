@@ -2,16 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Table, Card } from "antd";
 import useWindowDimensions from "../../helpers/useWindowDimensions";
 import NumberFormat from "react-number-format";
-import { getRecentOrder } from "../../redux/actions/recentOrder";
+import { getRecentOrder } from "../../redux/actions/order";
 import { useSelector, useDispatch } from "react-redux";
 
 const Home = props => {
   const [pagination, setPagination] = useState({});
   const { width } = useWindowDimensions();
 
-  const { recentOrderList, isLoading } = useSelector(
-    state => state.recentOrder
-  );
+  const { recentOrderList, isLoading } = useSelector(state => state.order);
   const dispatch = useDispatch();
 
   const columns = [
@@ -44,7 +42,6 @@ const Home = props => {
   ];
 
   const handleTableChange = page => {
-    console.log(page, "order page")
     setPagination({ ...pagination, current: page.current });
     fetchDataOrder({
       perpage: page.pageSize,
@@ -61,11 +58,15 @@ const Home = props => {
   }, []);
 
   const fetchDataOrder = (params = {}) => {
-    dispatch(getRecentOrder(props.token, params)).then(response => {
-      if(response.value.data.status === 200){
-        setPagination({...pagination, total: response.value.data.result.infoPage.totalAllOrder})
-      }else{
-        setPagination({...pagination, total: 0})
+    console.log(props.user.token, "props user home");
+    dispatch(getRecentOrder(props.user.token, params)).then(response => {
+      if (response.value.data.status === 200) {
+        setPagination({
+          ...pagination,
+          total: response.value.data.result.infoPage.totalAllOrder
+        });
+      } else {
+        setPagination({ ...pagination, total: 0 });
       }
     });
   };
@@ -78,7 +79,9 @@ const Home = props => {
           columns={columns}
           rowKey={record => record.id}
           // dataSource={dataOrder}
-          dataSource={recentOrderList.status === 200 ? recentOrderList.result.data : []}
+          dataSource={
+            recentOrderList.status === 200 ? recentOrderList.result.data : []
+          }
           loading={isLoading}
           pagination={pagination}
           onChange={handleTableChange}
