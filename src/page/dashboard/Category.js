@@ -81,7 +81,7 @@ const Category = props => {
   };
 
   const fetchData = (params = {}) => {
-    dispatch(getCategory(props.token, params)).then(response => {
+    dispatch(getCategory(props.user.token, params)).then(response => {
       if (response.value.data.status === 200) {
         setPagination({
           ...pagination,
@@ -106,7 +106,7 @@ const Category = props => {
 
   const handleDelete = async record => {
     const deleteProcess = await dispatch(
-      deleteCategory(props.token, record.id)
+      deleteCategory(props.user.token, record.id)
     );
 
     if (deleteProcess.value.data.status === 200) {
@@ -139,7 +139,7 @@ const Category = props => {
           updateVisible={updateVisibleAdd}
           title="Add Product"
           type="add"
-          token={props.token}
+          token={props.user.token}
           onProcessSuccess={fetchData}
         />
         <CategoryDrawer
@@ -148,7 +148,7 @@ const Category = props => {
           title={`Edit Category`}
           data={visibleEdit.data}
           type="update"
-          token={props.token}
+          token={props.user.token}
           onProcessSuccess={fetchData}
         />
         <Table

@@ -3,16 +3,21 @@ import CardProduct from "../../components/CardProduct";
 import { Row, Divider, Card, Spin, Input, Select, Pagination } from "antd";
 
 import { getProduct } from "../../redux/actions/product";
+import {
+  getProductInOrder,
+  addItemInOrder,
+  removeItemInOrder
+} from "../../redux/actions/order";
 import { useSelector, useDispatch } from "react-redux";
 
 const { Search } = Input;
 const { Option } = Select;
 
 const Order = props => {
-  const [dataProduct, setDataProduct] = useState([]);
-  const { isLoading } = useSelector(
-    state => state.product
+  const { detailOrder, productList, isLoading } = useSelector(
+    state => state.order
   );
+
   const dispatch = useDispatch();
 
   const [dataParams, setDataParams] = useState({
@@ -26,10 +31,6 @@ const Order = props => {
 
   useEffect(() => {
     const timeOut = setTimeout(() => {
-      // if (localStorage.getItem("user") !== null) setLogin(true);
-      // else setLogin(false);
-      // if (!isLogin) return <Redirect to="/" />;
-      // else
       fetchData(dataParams);
     }, 0);
 
@@ -37,18 +38,11 @@ const Order = props => {
   }, [dataParams]);
 
   const fetchData = async (params = {}) => {
-    const getData = await dispatch(getProduct(props.token, params));
+    const getData = await dispatch(getProductInOrder(props.user.token, params));
 
     if (getData.value.data.status === 200) {
-      setDataProduct(() =>
-        getData.value.data.result.data.map(item => ({
-          ...item,
-          isSelected: false
-        }))
-      );
       setMaxProduct(getData.value.data.result.infoPage.totalAllProduct);
     } else {
-      setDataProduct([]);
       setMaxProduct(0);
     }
   };
@@ -69,16 +63,9 @@ const Order = props => {
     setDataParams({ ...dataParams, page: current });
   };
 
-  const handleSelectedProduct = product => {
-    product.isSelected = !product.isSelected;
-    
-    const afterEdit = dataProduct.map(item => {
-      if (item.id === Number(product.id))
-        return product;
-      return item;
-    });
-
-    setDataProduct(afterEdit);
+  const handleSelectedProduct = async product => {
+    if (!product.isSelected) await dispatch(addItemInOrder(product));
+    else await dispatch(removeItemInOrder(product));
   };
 
   return (
@@ -120,7 +107,7 @@ const Order = props => {
           <Spin />
         ) : (
           <div>
-            {dataProduct.length === 0 ? (
+            {productList.length === 0 ? (
               <div>
                 <img
                   className="img-notfound"
@@ -132,7 +119,7 @@ const Order = props => {
                 </p>
               </div>
             ) : (
-              dataProduct.map(item => (
+              productList.map(item => (
                 <CardProduct
                   onClick={() => handleSelectedProduct(item)}
                   data={item}

@@ -1,36 +1,35 @@
 import React, { useState, useEffect } from "react";
-import { Form, Icon, Input, Button, Row, Col } from "antd";
+import { Form, Icon, Input, Button, Row, Col, Alert } from "antd";
 import { Link, withRouter } from "react-router-dom";
 // import axios from "axios";
 import "../../style.css";
 
-import { login, getToken } from "../../redux/actions/auth";
+import { login, getUserDetail } from "../../redux/actions/auth";
 import { useSelector, useDispatch } from "react-redux";
 
 const Login = props => {
   const initialFormState = { username: "", password: "" };
   const [input, setInput] = useState(initialFormState);
 
-  const { loginResponse, isLoading, token } = useSelector(state => state.auth);
+  const { loginResponse, isLoading, user } = useSelector(state => state.auth);
   const dispatch = useDispatch();
 
   useEffect(() => {
-
     const isRedirect = setTimeout(() => {
-      getUserToken()
+      getUserToken();
     }, 0);
 
     return () => {
       clearTimeout(isRedirect);
     };
-  }, [token, loginResponse]);
+  }, [user, loginResponse]);
 
   const getUserToken = async () => {
-    await dispatch(getToken());
-    if (token !== null) props.history.push("/dashboard");
-  }
+    await dispatch(getUserDetail());
+    if (user !== null) props.history.push("/dashboard");
+  };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async event => {
     event.preventDefault();
 
     await dispatch(login(input));
@@ -50,7 +49,7 @@ const Login = props => {
               <p className="title">The Warungs</p>
               <p className="tagline">The Best Solution For Your Restaurant</p>
             </div>
-            {/* {loginResponse.status === 400 ? (
+            {loginResponse.status === 400 ? (
               <Alert
                 message="Error Login"
                 description={loginResponse.message}
@@ -65,14 +64,14 @@ const Login = props => {
             {loginResponse.status === 200 ? (
               <Alert
                 message="Success Login"
-                description={loginResponse.result}
+                description="Login successfully, please wait a moment you will be redirect"
                 type="success"
                 showIcon
                 style={{ width: "100%" }}
               />
             ) : (
               ""
-            )} */}
+            )}
           </Row>
           <Row style={{ height: "60%" }} type="flex">
             <Form className="login-form" onSubmit={handleSubmit}>

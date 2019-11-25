@@ -66,7 +66,6 @@ const category = (state = initialState, action) => {
         isRejected: true
       };
     case "EDIT_CATEGORY_FULFILLED":
-      console.log(action.payload.data, "edit fulfiled");
       let afterEdit = state.categoryList;
       if (action.payload.data.status === 200) {
         afterEdit = state.categoryList.map(category => {

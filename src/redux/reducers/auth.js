@@ -1,7 +1,7 @@
 const initialState = {
   registerResponse: {},
   loginResponse: {},
-  token: null,
+  user: null,
   isLoading: false,
   isRejected: false
 };
@@ -43,7 +43,9 @@ const auth = (state = initialState, action) => {
       };
     case "USER_LOGIN_FULFILLED":
       const response = action.payload.data;
-      localStorage.setItem("user", JSON.stringify(response.result));
+      if (action.payload.data.status === 200) {
+        localStorage.setItem("user", JSON.stringify(response.result));
+      }
       return {
         ...state,
         isLoading: false,
@@ -51,22 +53,22 @@ const auth = (state = initialState, action) => {
         loginResponse: response,
         registerResponse: {}
       };
-    case "USER_TOKEN":
+    case "USER_DETAIL":
       return {
         ...state,
         isLoading: false,
         isRejected: false,
-        token: !localStorage.getItem("user")
+        user: !localStorage.getItem("user")
           ? null
-          : JSON.parse(localStorage.getItem("user")).token
+          : JSON.parse(localStorage.getItem("user"))
       };
     case "USER_LOGOUT":
-        return {
-            ...state,
-            isLoading: false,
-            isRejected: false,
-            token: null
-        }
+      return {
+        ...state,
+        isLoading: false,
+        isRejected: false,
+        user: null
+      };
     default:
       return state;
   }

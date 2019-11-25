@@ -122,7 +122,6 @@ const Product = props => {
   }, []);
 
   const handleTableChange = (page, filters, sorter) => {
-    console.log(page, "product page");
     setPagination({ ...pagination, current: page.current });
     if (sorter.field === "product_name") sorter.field = "name";
 
@@ -137,9 +136,8 @@ const Product = props => {
   };
 
   const handleDelete = async record => {
-    console.log(record, "record");
     const deleteProcess = await dispatch(
-      deleteProduct(props.token, record.id)
+      deleteProduct(props.user.token, record.id)
     );
 
     if (deleteProcess.value.data.status === 200) {
@@ -156,14 +154,14 @@ const Product = props => {
   };
 
   const fetchData = async (params = {}) => {
-    dispatch(getProduct(props.token, params)).then(response => {
+    dispatch(getProduct(props.user.token, params)).then(response => {
       if(response.value.data.status === 200){
         setPagination({...pagination, total: response.value.data.result.infoPage.totalAllProduct})
       }else{
         setPagination({...pagination, total: 0})
       }
     });
-    await dispatch(getCategory(props.token));
+    await dispatch(getCategory(props.user.token));
   };
 
   return (
@@ -174,9 +172,9 @@ const Product = props => {
           updateVisible={editModalVisible}
           dataEdit={dataRow}
           categoryData={categoryList}
-          token={props.token}
+          token={props.user.token}
         />
-        <AddProductDrawer categoryData={categoryList} token={props.token} />
+        <AddProductDrawer categoryData={categoryList} token={props.user.token} />
         <Table
           columns={columns}
           rowKey={record => record.id}
