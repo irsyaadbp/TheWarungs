@@ -24,7 +24,6 @@ export const createNewProduct = (token, input) => {
 };
 
 export const editProduct = (token, input) => {
-    console.log(token, input, "action edit")
     return {
       type: "EDIT_PRODUCT",
       payload: axios.put(`${process.env.REACT_APP_BASE_URL}/product/${input.id}`, input, {

@@ -17,9 +17,9 @@ export const login = input => {
   };
 };
 
-export const getToken = () => {
+export const getUserDetail = () => {
   return {
-    type: "USER_TOKEN",
+    type: "USER_DETAIL",
   };
 };
 

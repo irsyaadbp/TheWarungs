@@ -98,7 +98,6 @@ const product = (state = initialState, action) => {
     case "DELETE_PRODUCT_FULFILLED":
       let id = "";
       let afterDelete = state.productList;
-      console.log(action.payload.data, "del full");
       if (action.payload.data.status === 200) {
         id = action.payload.data.result.id;
         afterDelete = state.productList.filter(item => item.id !== Number(id));
